@@ -1,4 +1,4 @@
-# 🌐 SocialHub
+# 🌐 Campaign Monitoring Dashboard
 
 Campaign Monitoring Dashboard is a frontend web application designed to track, analyze, and monitor campaign performance in real time. The dashboard focuses on clarity, usability, and production-ready functionality, making it ideal for data-driven decision making.
 
@@ -41,7 +41,7 @@ Campaign Monitoring Dashboard is a frontend web application designed to track, a
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/socialhub.git
+git clone https://github.com/your-username/campaign-monitoring-dashboard.git
 
 # Install dependencies
 npm install
