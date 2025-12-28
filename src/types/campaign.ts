@@ -69,3 +69,14 @@ export interface CampaignInsights {
   cpc: number;
   conversion_rate: number;
 }
+
+export interface Metrics {
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  spend: number;
+  ctr: number;
+  conversion_rate: number;
+  cpc: number;
+  timestamp?: string;
+}
