@@ -1,73 +1,50 @@
-# React + TypeScript + Vite
+# 🌐 SocialHub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Campaign Monitoring Dashboard is a frontend web application designed to track, analyze, and monitor campaign performance in real time. The dashboard focuses on clarity, usability, and production-ready functionality, making it ideal for data-driven decision making.
 
-Currently, two official plugins are available:
+🚀 **Live Demo:**  
+👉 https://campaign-monitoring-dashboard-two.vercel.app/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## ✨ Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+-📈 View campaign performance metrics at a glance
 
-## Expanding the ESLint configuration
+-🧮 Display key statistics using reusable Stat Cards
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+-📊 Monitor multiple campaigns in a structured dashboard layout
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+-🔍 Analyze campaign data with clear visual hierarchy
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+-🔄 Navigate seamlessly using client-side routing
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+-📱 Fully responsive UI for desktop and mobile devices
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🛠 Tech Stack
+
+- React  
+- TypeScript  
+- Tailwind CSS  
+- Vite  
+
+### AI Assistance
+- ChatGPT  
+- DeepSeek AI  
+
+---
+
+## 🚀 Getting Started (Optional)
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/socialhub.git
+
+# Install dependencies
+npm install
+
+# Run the project
+npm run dev
