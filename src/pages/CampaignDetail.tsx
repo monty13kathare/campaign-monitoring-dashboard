@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type JSX } from "react";
+import { useState, useEffect, useRef} from "react";
 import { useParams, Link } from "react-router-dom";
 import type { Campaign } from "../types/campaign";
 import { getCampaignById, getCampaignInsights } from "../api/campaign";
@@ -7,10 +7,6 @@ import {
   MoreVertical,
   Share2,
   Download,
-  Facebook,
-  Instagram,
-  Twitter,
-  Globe,
   Calendar,
   BarChart3,
   LineChart,
@@ -250,35 +246,7 @@ export default function CampaignDetail() {
     }
   };
 
-  const getPlatformIcon = (platform: string) => {
-    const platformIcons: { [key: string]: JSX.Element } = {
-      meta: <Facebook className="w-5 h-5 text-blue-800" />,
-      facebook: <Facebook className="w-5 h-5 text-blue-500" />,
-      instagram: <Instagram className="w-5 h-5 text-purple-600" />,
-      twitter: <Twitter className="w-5 h-5 text-sky-700" />,
-      google: <Globe className="w-5 h-5 text-red-500" />,
-      tiktok: (
-        <div className="w-5 h-5 bg-black text-white text-xs flex items-center justify-center rounded">
-          TT
-        </div>
-      ),
-      linkedin: (
-        <div className="w-5 h-5 bg-blue-700 text-white text-xs flex items-center justify-center rounded">
-          in
-        </div>
-      ),
-      pinterest: (
-        <div className="w-5 h-5 bg-red-600 text-white text-xs flex items-center justify-center rounded">
-          P
-        </div>
-      ),
-    };
-    return (
-      platformIcons[platform?.toLowerCase()] || (
-        <Globe className="w-5 h-5 text-gray-500" />
-      )
-    );
-  };
+  
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
