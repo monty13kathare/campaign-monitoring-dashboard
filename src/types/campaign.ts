@@ -23,18 +23,6 @@ export interface Campaign {
   updated_at?: string;
 }
 
-// Additional interfaces for related data
-export interface CampaignMetrics {
-  campaign_id: string;
-  date: string;
-  spend: number;
-  clicks: number;
-  impressions: number;
-  conversions: number;
-  ctr: number;
-  conversion_rate: number;
-  avg_cpc: number;
-}
 
 export interface CampaignInsights {
   campaign_id: string;
@@ -80,3 +68,6 @@ export interface Metrics {
   cpc: number;
   timestamp?: string;
 }
+
+
+

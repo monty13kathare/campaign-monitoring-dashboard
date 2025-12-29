@@ -15,36 +15,44 @@ export default function Dashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async (isRefresh = false) => {
-    if (isRefresh) {
-      setIsRefreshing(true);
-    } else {
-      setIsLoading(true);
+ const fetchData = async (isRefresh = false) => {
+  if (isRefresh) {
+    setIsRefreshing(true);
+  } else {
+    setIsLoading(true);
+  }
+
+  setError(null);
+
+  try {
+    const [campaignsData, insightsData] = await Promise.all([
+      getCampaigns(),
+      getGlobalInsights(),
+    ]);
+
+    // Validate responses
+    if (!campaignsData || !campaignsData.campaigns) {
+      throw new Error("Failed to load campaigns data.");
+    }
+    if (!insightsData || !insightsData.insights) {
+      throw new Error("Failed to load insights data.");
     }
 
-    setError(null);
+    setCampaigns(campaignsData.campaigns);
+    setInsights(insightsData.insights);
+  } catch (err) {
+    console.error("Error fetching dashboard data:", err);
+    setError(err instanceof Error ? err.message : "Failed to load dashboard data");
+  } finally {
+    setIsLoading(false);
+    setIsRefreshing(false);
+  }
+};
 
-    try {
-      const [campaignsData, insightsData] = await Promise.all([
-        getCampaigns(),
-        getGlobalInsights(),
-      ]);
+useEffect(() => {
+  fetchData();
+}, []);
 
-      setCampaigns(campaignsData.campaigns);
-      setInsights(insightsData.insights);
-    } catch (err) {
-      console.error("Error fetching dashboard data:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to load dashboard data"
-      );
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const handleRefresh = () => {
     fetchData(true);

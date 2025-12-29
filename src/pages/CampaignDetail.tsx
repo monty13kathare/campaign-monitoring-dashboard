@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import type { Campaign } from "../types/campaign";
 import { getCampaignById, getCampaignInsights } from "../api/campaign";
@@ -245,8 +245,6 @@ export default function CampaignDetail() {
         return <AlertCircle className="w-4 h-4" />;
     }
   };
-
-  
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

@@ -255,7 +255,7 @@ export default function InsightsErrorState({
 
   return (
     <div className={`${errorDetails.bgColor} ${errorDetails.borderColor} border rounded-xl p-6 md:p-8 shadow-sm ${className}`}>
-      <div className="flex flex-col items-center text-center max-w-md mx-auto">
+      <div className="flex flex-col items-center text-center w-full mx-auto">
         {/* Error Icon */}
         <div className={`p-4 rounded-full ${errorDetails.bgColor} ${errorDetails.borderColor} border-2 mb-5`}>
           <div className={errorDetails.color}>
