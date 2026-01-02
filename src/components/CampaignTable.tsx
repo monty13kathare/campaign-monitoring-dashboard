@@ -293,7 +293,7 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
               </th>
               <th className="py-4 px-6 text-left">
                 <div className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                  Todal Budget
+                  Total Budget
                 </div>
               </th>
               <th className="py-4 px-6 text-left">
