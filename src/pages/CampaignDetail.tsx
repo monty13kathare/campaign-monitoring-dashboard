@@ -28,6 +28,7 @@ import { CampaignOverview } from "../components/CampaignOverview";
 import { PerformanceTab } from "../components/PerformanceTab";
 import { InsightsTab } from "../components/InsightsTab";
 import { AnalyticsTab } from "../components/AnalyticsTab";
+import { formatDate } from "../lib/formatters";
 
 interface CampaignInsights {
   campaign_id: string;
@@ -244,15 +245,6 @@ export default function CampaignDetail() {
       default:
         return <AlertCircle className="w-4 h-4" />;
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   // Loading state
@@ -474,7 +466,7 @@ export default function CampaignDetail() {
 
         {/* Tabs Navigation */}
         <div className="mb-6">
-          <div className="border-b border-gray-200">
+          <div className="border-b border-gray-200 overflow-scroll no-scrollbar md:overflow-hidden">
             <nav className="-mb-px flex space-x-8">
               {[
                 {
@@ -488,14 +480,14 @@ export default function CampaignDetail() {
                   icon: <ActivityIcon className="w-4 h-4" />,
                 },
                 {
-                  id: "insights",
-                  label: "Insights",
-                  icon: <TrendingUpIcon className="w-4 h-4" />,
-                },
-                {
                   id: "analytics",
                   label: "Analytics",
                   icon: <LineChart className="w-4 h-4" />,
+                },
+                {
+                  id: "insights",
+                  label: "Insights",
+                  icon: <TrendingUpIcon className="w-4 h-4" />,
                 },
               ].map((tab) => (
                 <button

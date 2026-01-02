@@ -13,11 +13,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
 } from "recharts";
 import {
   Download,
@@ -32,9 +27,10 @@ import {
   DownloadCloud,
   ChevronDown,
   Calendar as CalendarIcon,
-  Users,
   Zap,
+  ChartArea,
 } from "lucide-react";
+import { formatCurrency, formatNumber } from "../lib/formatters";
 
 interface AnalyticsTabProps {
   currentMetrics?: any;
@@ -59,19 +55,45 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([
     "impressions",
-    "clicks",
-    "conversions",
+    // "clicks",
+    // "conversions",
+    // "revenue",
+    // "spend"
   ]);
   const [realtimeHistory, setRealtimeHistory] = useState<any[]>([]);
   const [chartKey, setChartKey] = useState(0);
+   const [chartData, setChartData] = useState<any[]>([]);
 
   const previousMetricsRef = useRef<any | null>(null);
+   const prevMetrics = useRef<any | null>(null);
 
   useEffect(() => {
     if (realtimeHistory.length) {
       setChartKey((k) => k + 1);
     }
   }, [realtimeHistory]);
+
+  useEffect(() => {
+      if (!currentMetrics) return;
+  
+      setChartData((prev) => [
+        ...prev.slice(-29), // last 30 entries
+        {
+          date: new Date(currentMetrics.timestamp).toLocaleTimeString(),
+          impressions: currentMetrics.impressions,
+          clicks: currentMetrics.clicks,
+          conversions: currentMetrics.conversions,
+          revenue: Number(currentMetrics.conversions ?? 0) * 100,
+          spend: currentMetrics.spend,
+          impressionsTarget: currentMetrics.impressions * 1.1,
+          clicksTarget: currentMetrics.clicks * 1.1,
+          conversionsTarget: currentMetrics.conversions * 1.1,
+          spendTarget: currentMetrics.spend * 1.1,
+        },
+      ]);
+  
+      prevMetrics.current = currentMetrics;
+    }, [currentMetrics]);
 
   useEffect(() => {
     if (!currentMetrics) return;
@@ -119,11 +141,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
     });
   }, [currentMetrics]);
 
-  const filteredData = useMemo(() => {
-    const limit = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
-
-    return realtimeHistory.slice(-limit);
-  }, [realtimeHistory, timeRange]);
+ 
 
   const summaryStats = useMemo(() => {
     if (!currentMetrics) return null;
@@ -182,6 +200,13 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
         icon: DollarSign,
         color: "amber",
       },
+       {
+      label: "Spend Growth",
+      current: currentMetrics.spend,
+      previous: prev.spend,
+      icon: DollarSign,
+      color: "red", // intentional: rising spend requires scrutiny
+    },
     ];
   }, [currentMetrics, summaryStats]);
 
@@ -222,22 +247,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
     return null;
   };
 
-  // Format currency
-  const formatCurrency = (amount: any): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  // Format number with abbreviations
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toString();
-  };
+  
 
   const performanceScore = useMemo(() => {
     if (
@@ -254,19 +264,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
     );
   }, [currentMetrics?.ctr, currentMetrics?.conversion_rate]);
 
-  const chartData = useMemo(() => {
-    return filteredData.map((item) => ({
-      date: item.date,
-      impressions: +item.impressions,
-      clicks: +item.clicks,
-      conversions: +item.conversions,
-      spend: +item.spend,
-      revenue: +item.revenue,
-      ctr: +item.ctr,
-      engagement: +item.engagement,
-      roi: +item.roi,
-    }));
-  }, [filteredData]);
+  
 
   if (isLoading) {
     return (
@@ -357,20 +355,9 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
               }`}
               title="Area Chart"
             >
-              {/* <Area type="area" className="w-4 h-4" /> */}
+              <ChartArea  className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => setChartType("composed")}
-              className={`p-2 rounded-md transition-colors ${
-                chartType === "composed"
-                  ? "bg-white shadow-sm text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-              title="Composed Chart"
-            >
-              <BarChartIcon className="w-4 h-4" />
-              <LineChartIcon className="w-3 h-3 -ml-2" />
-            </button>
+          
           </div>
 
           {/* Action Buttons */}
@@ -596,7 +583,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                 )}
               </LineChart>
             ) : chartType === "bar" ? (
-              <BarChart key={chartKey} data={chartData}>
+              <BarChart  data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
                 <YAxis stroke="#6b7280" fontSize={12} />
@@ -619,9 +606,23 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                     radius={[4, 4, 0, 0]}
                   />
                 )}
+                 {selectedMetrics.includes("revenue") && (
+                  <Bar
+                    dataKey="revenue"
+                    fill="red"
+                    radius={[4, 4, 0, 0]}
+                  />
+                )}
+                 {selectedMetrics.includes("spend") && (
+                  <Bar
+                    dataKey="spend"
+                    fill="black"
+                    radius={[4, 4, 0, 0]}
+                  />
+                )}
               </BarChart>
             ) : chartType === "area" ? (
-              <AreaChart key={chartKey} data={chartData}>
+              <AreaChart  data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
                 <YAxis stroke="#6b7280" fontSize={12} />
@@ -654,9 +655,10 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                     fillOpacity={0.2}
                   />
                 )}
+                
               </AreaChart>
             ) : (
-              <ComposedChart key={chartKey} data={chartData}>
+              <ComposedChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
                 <YAxis stroke="#6b7280" fontSize={12} />
@@ -681,196 +683,14 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                     dot={false}
                   />
                 )}
-                {selectedMetrics.includes("ctr") && (
-                  <Line
-                    type="monotone"
-                    dataKey="ctr"
-                    stroke="#F59E0B"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                )}
+               
               </ComposedChart>
             )}
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Additional Analytics Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* ROI Analysis */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                ROI Analysis
-              </h3>
-              <p className="text-sm text-gray-600">
-                Return on investment metrics
-              </p>
-            </div>
-            <DollarSign className="w-5 h-5 text-gray-400" />
-          </div>
-
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart
-                key={chartKey}
-                data={chartData.slice(-6)} // limit points for clarity
-                outerRadius="75%"
-              >
-                <PolarGrid stroke="#E5E7EB" />
-
-                <PolarAngleAxis
-                  dataKey="date"
-                  tick={{ fontSize: 11, fill: "#6B7280" }}
-                />
-
-                <PolarRadiusAxis
-                  tick={{ fontSize: 10 }}
-                  domain={[0, "auto"]} // avoid negative distortion
-                />
-
-                <Radar
-                  name="ROI (%)"
-                  dataKey={(d: any) => Math.max(0, Number(d.roi ?? 0))}
-                  stroke="#10B981"
-                  fill="#10B981"
-                  fillOpacity={0.25}
-                />
-
-                <Radar
-                  name="CTR (%)"
-                  dataKey={(d: any) => Math.max(0, Number(d.ctr ?? 0))}
-                  stroke="#3B82F6"
-                  fill="#3B82F6"
-                  fillOpacity={0.25}
-                />
-
-                <Legend />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* ROI Summary */}
-          {summaryStats && (
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="p-3 bg-green-50 rounded-lg">
-                <div className="text-sm text-green-700 mb-1">Average ROI</div>
-                <div className="text-xl font-bold text-green-900">
-                  {(Number(summaryStats.avgROI) || 0).toFixed(1)}%
-                </div>
-              </div>
-
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <div className="text-sm text-blue-700 mb-1">Total Revenue</div>
-                <div className="text-xl font-bold text-blue-900">
-                  {formatCurrency(Number(summaryStats.totalRevenue) || 0)}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Engagement Metrics */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Engagement Metrics
-              </h3>
-              <p className="text-sm text-gray-600">User interaction analysis</p>
-            </div>
-            <Users className="w-5 h-5 text-gray-400" />
-          </div>
-
-          <div className="space-y-4">
-            {chartData.slice(-3).map((day, index) => {
-              const ctr = Number(day.ctr ?? 0);
-              const engagement = Number(day.engagement ?? 0);
-
-              return (
-                <div
-                  key={`${day.date}-${index}`}
-                  className="p-3 bg-gray-50 rounded-lg"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-900">
-                      {day.date}
-                    </span>
-
-                    <span className="text-sm text-gray-600">
-                      CTR: {ctr.toFixed(2)}%
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="text-xs text-gray-600 mb-1">
-                        Engagement Rate
-                      </div>
-
-                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                        <div
-                          className={`h-2 rounded-full transition-all ${
-                            engagement >= 50
-                              ? "bg-green-500"
-                              : engagement >= 25
-                              ? "bg-amber-500"
-                              : "bg-red-500"
-                          }`}
-                          style={{
-                            width: `${Math.min(engagement, 100)}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="text-sm font-semibold text-gray-900 min-w-13 text-right">
-                      {engagement.toFixed(2)}%
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Dynamic Insight */}
-          {chartData.length >= 2 &&
-            (() => {
-              const last = chartData[chartData.length - 1].engagement;
-              const prev = chartData[chartData.length - 2].engagement;
-
-              const diff = last - prev;
-              const isUp = diff >= 0;
-
-              return (
-                <div
-                  className={`mt-4 p-3 rounded-lg ${
-                    isUp ? "bg-green-50" : "bg-red-50"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    {isUp ? (
-                      <TrendingUp className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <TrendingDown className="w-4 h-4 text-red-600" />
-                    )}
-
-                    <span
-                      className={`text-sm font-medium ${
-                        isUp ? "text-green-900" : "text-red-900"
-                      }`}
-                    >
-                      Engagement {isUp ? "increased" : "decreased"} by{" "}
-                      {Math.abs(diff).toFixed(2)}% since last update
-                    </span>
-                  </div>
-                </div>
-              );
-            })()}
-        </div>
-      </div>
+    
     </div>
   );
 };

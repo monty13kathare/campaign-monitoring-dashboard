@@ -13,6 +13,7 @@ import {
   MousePointer,
 } from "lucide-react";
 import type { JSX } from "react";
+import { formatCurrency, formatDate } from "../lib/formatters";
 
 interface CampaignTableProps {
   campaigns: Campaign[];
@@ -64,33 +65,11 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
+ 
 
-  //   const formatDateTime = (dateString: string) => {
-  //     const date = new Date(dateString);
-  //     return date.toLocaleDateString('en-US', {
-  //       month: 'short',
-  //       day: 'numeric',
-  //       hour: '2-digit',
-  //       minute: '2-digit'
-  //     });
-  //   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+
+ 
 
   const getPerformanceMetrics = (campaign: Campaign) => {
     // Calculate additional performance metrics based on campaign data

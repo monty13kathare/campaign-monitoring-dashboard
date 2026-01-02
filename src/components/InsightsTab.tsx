@@ -26,6 +26,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import { formatCurrency } from "../lib/formatters";
 
 interface InsightsTabProps {
   currentMetrics?: any;
@@ -54,23 +55,6 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
   }, [insights]);
 
   // Calculate performance score
-  // const performanceScore = useMemo(() => {
-  //   if (
-  //     currentMetrics?.ctr == null ||
-  //     currentMetrics?.conversion_rate == null
-  //   ) {
-  //     return 0;
-  //   }
-
-  //   return (
-  //     Math.round(
-  //       (currentMetrics.ctr * 0.4 +
-  //         currentMetrics.conversion_rate * 0.6) *
-  //         10
-  //     ) / 10
-  //   );
-  // }, [currentMetrics?.ctr, currentMetrics?.conversion_rate]);
-
   const performanceScore = useMemo(() => {
     if (!currentMetrics) return 0;
 
@@ -93,13 +77,6 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
   }, [currentMetrics]);
 
   // Mock performance distribution data
-  // const performanceDistribution = [
-  //   { name: 'CTR', value: currentMetrics?.ctr || 0, fill: '#3B82F6' },
-  //   { name: 'Conversion Rate', value: currentMetrics?.conversion_rate || 0, fill: '#10B981' },
-  //   { name: 'Engagement', value: engagementRate, fill: '#8B5CF6' },
-  //   { name: 'Cost Efficiency', value: 100 - (costPerConversion / 100), fill: '#F59E0B' }
-  // ];
-
   const performanceDistribution = useMemo(() => {
     if (!currentMetrics) return [];
 
@@ -158,14 +135,14 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
   }, [currentMetrics, previousMetrics]);
 
   // Format currency
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  // const formatCurrency = (amount: number): string => {
+  //   return new Intl.NumberFormat("en-US", {
+  //     style: "currency",
+  //     currency: "USD",
+  //     minimumFractionDigits: 0,
+  //     maximumFractionDigits: 0,
+  //   }).format(amount);
+  // };
 
   if (isInsightsLoading) {
     return (

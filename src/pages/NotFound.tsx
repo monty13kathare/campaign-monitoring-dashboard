@@ -1,15 +1,27 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Home, ArrowLeft, Search, AlertTriangle, Compass, Navigation2 } from "lucide-react";
+import {
+  Home,
+  ArrowLeft,
+  Search,
+  AlertTriangle,
+  Compass,
+  Navigation2,
+} from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [particles, setParticles] = useState<Array<{ x: number; y: number; size: number }>>([]);
+  const [particles, setParticles] = useState<
+    Array<{ x: number; y: number; size: number }>
+  >([]);
 
   useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-    
+    console.error(
+      "404 Error: User attempted to access non-existent route:",
+      location.pathname
+    );
+
     // Generate floating particles
     const newParticles = Array.from({ length: 15 }, () => ({
       x: Math.random() * 100,
@@ -59,11 +71,11 @@ const NotFound = () => {
             <AlertTriangle className="w-5 h-5" />
             <span className="text-sm font-medium">Page Not Found</span>
           </div>
-          
+
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
             Lost in <span className="text-blue-300">Space</span>
           </h1>
-          
+
           <p className="text-gray-300 mb-6 max-w-md mx-auto">
             The page you're looking for has ventured beyond our known universe.
             Let's help you get back on track.
@@ -90,7 +102,7 @@ const NotFound = () => {
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             Go Back
           </button>
-          
+
           <button
             onClick={() => navigate("/")}
             className="group flex items-center justify-center gap-2 px-8 py-3 bg-linear-to-r from-blue-500 to-blue-600 rounded-xl hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl transition-all duration-300"
@@ -105,14 +117,15 @@ const NotFound = () => {
           <div className="flex items-center justify-center gap-4 text-sm text-gray-400">
             <Navigation2 className="w-4 h-4 animate-pulse" />
             <span>Need assistance?</span>
-            <a href="/help" className="text-blue-300 hover:text-blue-200 underline">
+            <a
+              href="/help"
+              className="text-blue-300 hover:text-blue-200 underline"
+            >
               Get help
             </a>
           </div>
         </div>
       </div>
-
-      
     </div>
   );
 };
