@@ -89,6 +89,12 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
           clicksTarget: currentMetrics.clicks * 1.1,
           conversionsTarget: currentMetrics.conversions * 1.1,
           spendTarget: currentMetrics.spend * 1.1,
+            roi:
+            currentMetrics.spend > 0
+              ? ((currentMetrics.conversions * 100 - currentMetrics.spend) /
+                  currentMetrics.spend) *
+                100
+              : 0,
         },
       ]);
   

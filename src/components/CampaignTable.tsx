@@ -10,31 +10,16 @@ import {
   BarChart3,
   Clock,
   Zap,
-  MousePointer,
 } from "lucide-react";
 import type { JSX } from "react";
 import { formatCurrency, formatDate } from "../lib/formatters";
+import { getStatusColor } from "../lib/utils";
 
 interface CampaignTableProps {
   campaigns: Campaign[];
 }
 
 export default function CampaignTable({ campaigns }: CampaignTableProps) {
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "active":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "paused":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "completed":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "draft":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   const getPlatformIcon = (platform: string) => {
     const platformIcons: { [key: string]: JSX.Element } = {
       meta: <Facebook className="w-4 h-4 text-blue-600" />,
@@ -65,36 +50,6 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
     );
   };
 
- 
-
-
-
- 
-
-  const getPerformanceMetrics = (campaign: Campaign) => {
-    // Calculate additional performance metrics based on campaign data
-    const ctr =
-      campaign.clicks && campaign.impressions
-        ? ((campaign.clicks / campaign.impressions) * 100).toFixed(2)
-        : "0.00";
-
-    const conversionRate =
-      campaign.conversions && campaign.clicks
-        ? ((campaign.conversions / campaign.clicks) * 100).toFixed(2)
-        : "0.00";
-
-    const cpc =
-      campaign.spend && campaign.clicks
-        ? (campaign.spend / campaign.clicks).toFixed(2)
-        : "0.00";
-
-    const budgetUsed = campaign.spend
-      ? ((campaign.spend / campaign.budget) * 100).toFixed(1)
-      : "0";
-
-    return { ctr, conversionRate, cpc, budgetUsed };
-  };
-
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
       {/* Table Header */}
@@ -122,8 +77,6 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
       {/* Mobile Cards View */}
       <div className="md:hidden">
         {campaigns?.map((campaign) => {
-          const metrics = getPerformanceMetrics(campaign);
-
           return (
             <div
               key={campaign.id}
@@ -131,11 +84,6 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  {/* <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
-                      {campaign.id}
-                    </span>
-                  </div> */}
                   <Link
                     to={`/campaign/${campaign.id}`}
                     className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-1"
@@ -151,9 +99,6 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
                   >
                     {campaign.status}
                   </span>
-                  {/* <button className="p-1 hover:bg-gray-100 rounded-lg">
-                    <MoreVertical className="w-4 h-4 text-gray-400" />
-                  </button> */}
                 </div>
               </div>
 
@@ -167,14 +112,7 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
                       </div>
                     ))}
                   </div>
-                  {/* <div className="text-xs text-gray-500">
-                    · {formatDate(campaign.created_at)}
-                  </div> */}
                 </div>
-                {/* <div className="text-xs text-gray-500 flex items-center">
-                  <Building2 className="w-3 h-3 mr-1" />
-                  {campaign.brand_id}
-                </div> */}
               </div>
 
               {/* Budget Information */}
@@ -184,7 +122,6 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
                     Total Budget
                   </div>
                   <div className="font-bold text-gray-900 flex items-center">
-                    {/* <DollarSign className="w-4 h-4 mr-1" /> */}
                     {formatCurrency(campaign.budget)}
                   </div>
                 </div>
@@ -198,61 +135,6 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
                 </div>
               </div>
 
-              {/* Performance Metrics */}
-              {campaign.spend && (
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-gray-600">Budget Usage</span>
-                    <span className="text-sm font-medium text-gray-900">
-                      {metrics.budgetUsed}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="h-2 rounded-full bg-linear-to-r from-blue-500 to-blue-600"
-                      style={{
-                        width: `${Math.min(Number(metrics.budgetUsed), 100)}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              )}
-
-              {/* Campaign Metrics */}
-              <div className="grid grid-cols-3 gap-2 text-center mb-4">
-                {campaign.clicks && (
-                  <div className="p-2 bg-gray-50 rounded">
-                    <div className="text-xs text-gray-500 mb-1 flex items-center justify-center">
-                      <MousePointer className="w-3 h-3 mr-1" />
-                      Clicks
-                    </div>
-                    <div className="font-bold text-gray-900">
-                      {campaign.clicks.toLocaleString()}
-                    </div>
-                  </div>
-                )}
-                {campaign.impressions && (
-                  <div className="p-2 bg-gray-50 rounded">
-                    <div className="text-xs text-gray-500 mb-1">
-                      Impressions
-                    </div>
-                    <div className="font-bold text-gray-900">
-                      {campaign.impressions.toLocaleString()}
-                    </div>
-                  </div>
-                )}
-                {campaign.conversions && (
-                  <div className="p-2 bg-gray-50 rounded">
-                    <div className="text-xs text-gray-500 mb-1">
-                      Conversions
-                    </div>
-                    <div className="font-bold text-gray-900">
-                      {campaign?.conversions}
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* Actions */}
               <div className="flex items-center justify-between">
                 <div className="text-xs text-gray-500 flex items-center">
@@ -260,9 +142,6 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
                   Created {formatDate(campaign.created_at)}
                 </div>
                 <div className="flex items-center gap-2">
-                  {/* <button className="p-2 hover:bg-gray-100 rounded-lg">
-                    <Eye className="w-4 h-4 text-gray-500" />
-                  </button> */}
                   <Link
                     to={`/campaign/${campaign.id}`}
                     className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
@@ -320,8 +199,6 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {campaigns?.map((campaign) => {
-              //   const metrics = getPerformanceMetrics(campaign);
-
               return (
                 <tr
                   key={campaign.id}
@@ -349,10 +226,6 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
                       >
                         {campaign.status}
                       </span>
-                      {/* <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Building2 className="w-4 h-4" />
-                        <span className="font-mono">{campaign.brand_id}</span>
-                      </div> */}
                     </div>
                   </td>
 
@@ -426,57 +299,6 @@ export default function CampaignTable({ campaigns }: CampaignTableProps) {
             })}
           </tbody>
         </table>
-      </div>
-
-      {/* Table Footer */}
-      <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-gray-600">
-              Showing <span className="font-medium">{campaigns?.length}</span>{" "}
-              campaigns
-            </div>
-            <div className="hidden md:flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span>Active</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <span>Paused</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span>Completed</span>
-              </div>
-            </div>
-          </div>
-          {/* <div className="flex items-center gap-2">
-            <div className="text-sm text-gray-600 mr-4">
-              Total Budget: {formatCurrency(campaigns.reduce((sum, c) => sum + c.budget, 0))}
-            </div>
-            <button className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-              Previous
-            </button>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3].map((page) => (
-                <button
-                  key={page}
-                  className={`px-3 py-2 text-sm rounded-lg ${
-                    page === 1
-                      ? 'bg-blue-600 text-white'
-                      : 'hover:bg-gray-100'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
-            </div>
-            <button className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
-              Next
-            </button>
-          </div> */}
-        </div>
       </div>
 
       {/* Empty State */}

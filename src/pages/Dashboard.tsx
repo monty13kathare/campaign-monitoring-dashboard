@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CampaignTable from "../components/CampaignTable";
-import type { Campaign } from "../types/campaign";
+import type { Campaign, GlobalInsights } from "../types/campaign";
 import { getCampaigns, getGlobalInsights } from "../api/campaign";
 import { Target, MousePointer, DollarSign, Activity } from "lucide-react";
 import InsightsErrorState from "../components/InsightsErrorStat";
@@ -8,13 +8,22 @@ import CampaignDonutChart from "../components/dashboard/CampaignDonutChart";
 import StatCard from "../components/dashboard/StatCard";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import { formatCurrency, formatNumber } from "../lib/formatters";
+import { calculateTrend } from "../lib/utils";
+
+const PERFORMANCE_THRESHOLDS = {
+  ctr: { good: 3, average: 2 },
+  conversion: { good: 4, average: 3 },
+  cpc: { good: 2.5, average: 3 },
+};
 
 export default function Dashboard() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [insights, setInsights] = useState<any>(null);
+  const [insights, setInsights] = useState<GlobalInsights | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const prevInsightsRef = useRef<GlobalInsights | null>(null);
+
 
   const fetchData = async (isRefresh = false) => {
     if (isRefresh) {
@@ -39,12 +48,16 @@ export default function Dashboard() {
         throw new Error("Failed to load insights data.");
       }
 
+       prevInsightsRef.current = insights;
+       
       setCampaigns(campaignsData.campaigns);
       setInsights(insightsData.insights);
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
       setError(
-        err instanceof Error ? err.message : "Failed to load dashboard data"
+        err instanceof Error
+          ? err.message
+          : "Dashboard data couldn’t be loaded. Please check your connection or try again."
       );
     } finally {
       setIsLoading(false);
@@ -59,6 +72,25 @@ export default function Dashboard() {
   const handleRefresh = () => {
     fetchData(true);
   };
+
+  const engagementMetrics = useMemo(() => {
+    if (!insights) return null;
+
+    return {
+      clickRate:
+        Math.round(
+          (insights.total_clicks / insights.total_impressions) * 10000
+        ) / 100,
+      conversionRate:
+        Math.round(
+          (insights.total_conversions / insights.total_clicks) * 10000
+        ) / 100,
+      costPerConversion:
+        insights.total_conversions > 0
+          ? insights.total_spend / insights.total_conversions
+          : 0,
+    };
+  }, [insights]);
 
   if (isLoading) {
     return (
@@ -106,15 +138,23 @@ export default function Dashboard() {
 
   const getPerformanceStatus = (
     value: number,
-    type: "ctr" | "conversion" | "cpc"
+    type: keyof typeof PERFORMANCE_THRESHOLDS
   ) => {
-    if (type === "ctr")
-      return value > 3 ? "good" : value > 2 ? "average" : "poor";
-    if (type === "conversion")
-      return value > 4 ? "good" : value > 3 ? "average" : "poor";
-    if (type === "cpc")
-      return value < 2.5 ? "good" : value < 3 ? "average" : "poor";
-    return "average";
+    const threshold = PERFORMANCE_THRESHOLDS[type];
+
+    if (type === "cpc") {
+      return value < threshold.good
+        ? "good"
+        : value < threshold.average
+        ? "average"
+        : "poor";
+    }
+
+    return value > threshold.good
+      ? "good"
+      : value > threshold.average
+      ? "average"
+      : "poor";
   };
 
   return (
@@ -135,7 +175,7 @@ export default function Dashboard() {
             subtitle={`${insights.active_campaigns} active`}
             icon={Activity}
             variant="blue"
-            trend={{ value: 12, isPositive: true }}
+            trend={{ value: 57.14, isPositive: true }}
             delay={0}
           />
 
@@ -145,7 +185,10 @@ export default function Dashboard() {
             subtitle={`Avg CPC: $${insights.avg_cpc}`}
             icon={DollarSign}
             variant="green"
-            trend={{ value: 8, isPositive: true }}
+             trend={calculateTrend(
+    insights.total_spend,
+    prevInsightsRef.current?.total_spend
+  )}
             delay={100}
           />
           <StatCard
@@ -154,7 +197,10 @@ export default function Dashboard() {
             subtitle={`CTR: ${insights.avg_ctr}%`}
             icon={MousePointer}
             variant="purple"
-            trend={{ value: 15, isPositive: true }}
+             trend={calculateTrend(
+    insights.total_clicks,
+    prevInsightsRef.current?.total_clicks
+  )}
             delay={200}
           />
           <StatCard
@@ -163,7 +209,10 @@ export default function Dashboard() {
             subtitle={`Rate: ${insights.avg_conversion_rate}%`}
             icon={Target}
             variant="amber"
-            trend={{ value: 5, isPositive: true }}
+            trend={calculateTrend(
+    insights.total_conversions,
+    prevInsightsRef.current?.total_conversions
+  )}
             delay={300}
           />
         </div>
@@ -304,21 +353,15 @@ export default function Dashboard() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600">
-                    {Math.round(
-                      (insights.total_clicks / insights.total_impressions) *
-                        10000
-                    ) / 100}
-                    %
+                  
+                    {engagementMetrics?.clickRate}%
                   </div>
                   <p className="text-sm text-gray-600">Click Rate</p>
                 </div>
                 <div className="text-center p-3 bg-green-50 rounded-lg">
                   <div className="text-2xl font-bold text-green-600">
-                    {Math.round(
-                      (insights.total_conversions / insights.total_clicks) *
-                        10000
-                    ) / 100}
-                    %
+                   
+                    {engagementMetrics?.conversionRate}%
                   </div>
                   <p className="text-sm text-gray-600">Conversion Rate</p>
                 </div>
@@ -328,9 +371,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-700">Cost Per Conversion</span>
                   <span className="font-bold text-gray-900">
-                    {formatCurrency(
-                      insights.total_spend / insights.total_conversions || 0
-                    )}
+                    {formatCurrency(engagementMetrics?.costPerConversion || 0)}
                   </span>
                 </div>
                 <div className="text-xs text-gray-500">
